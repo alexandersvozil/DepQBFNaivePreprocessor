@@ -1,0 +1,12 @@
+#specify version
+cmake_minimum_required(VERSION 3.0)
+#name of project
+project(QBF_CPP)
+
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -std=c++11 -pthread")
+set(SOURCE_FILES main.cpp)
+include_directories(depqbf formula)
+link_directories(depqbf)
+add_executable(QBF_CPP ${SOURCE_FILES} parser.cpp parser.h Formula/clause.cpp Formula/clause.h Formula/formula.cpp Formula/formula.h FNFException.cpp FNFException.h ParseException.cpp ParseException.h Formula/quantgroup.cpp Formula/quantgroup.h  preprocessing.cpp preprocessing.h)
+target_link_libraries(QBF_CPP qdpll)
