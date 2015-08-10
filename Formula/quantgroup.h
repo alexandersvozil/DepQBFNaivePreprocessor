@@ -19,8 +19,8 @@ public:
         return ordering;
     }
 
-    void setOrdering(int ordering) {
-        quantgroup::ordering = ordering;
+    void setOrdering(int Ordering) {
+        ordering = Ordering;
     }
 
     void setType(std::string string);

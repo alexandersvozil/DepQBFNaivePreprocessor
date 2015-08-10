@@ -24,22 +24,29 @@ private:
      * this allows us to quickly check which clauses a variable is in
      */
     std::map<int, std::vector<clause*>> occurenceMap;
+
+private:
+    int nrVar;
 public:
 
+    int getNrVar() const {
+        return nrVar;
+    }
+
+    void setNrVar(int nrVar) {
+        formula::nrVar = nrVar;
+    }
 
     std::vector<quantgroup *> &getQuantgroups()  {
         return quantgroups;
     }
 
-    void setQuantgroups(const std::vector<quantgroup *> &quantgroups) {
-        formula::quantgroups = quantgroups;
-    }
 
     std::vector<clause *> &getClauses() {
         return clauses;
     }
 
-    void setClauses(const std::vector<clause *> &clauses) {
+    void setClauses(std::vector<clause *> &clauses) {
         formula::clauses = clauses;
     }
 
@@ -63,6 +70,8 @@ public:
     void addC(clause *Clause);
 
     void addQG(quantgroup *k);
+
+    void removeC(clause *pClause);
 };
 
 

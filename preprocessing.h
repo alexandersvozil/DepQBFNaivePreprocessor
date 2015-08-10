@@ -23,6 +23,16 @@ public:
 
     //resolve over the two given clauses and a given variable
     clause *resolve(clause *c1, clause *c2, int toResolve, formula f);
+
+    formula add(formula f, clause *c);
+
+    void add(formula *f, clause *c);
+
+    void heuristic_nrResolvents(formula *in, int nrResolv);
+
+    clause *resolve(clause *c1, clause *c2, int toResolve, formula *f);
+
+    clause *universalR(clause *inC, formula *f);
 };
 
 

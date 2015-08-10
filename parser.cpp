@@ -37,6 +37,7 @@ formula parser::parse(string qdimacsInputPath) {
                 throw ParseException("second string is not cnf. Is this QDIMACS format input data?");
             }
             fin >> nrVariables;
+            resultFormula.setNrVar(nrVariables);
             fin >> nrClauses;
             firstLine = false;
         }
@@ -83,10 +84,7 @@ formula parser::parse(string qdimacsInputPath) {
         }else{
             /* parse a clause */
             clause* c = new clause();
-
-
             c->addVar(num);
-
             //set highest existential value in clause
             quantgroup* curQ = qmap.find(abs(num))->second;
             if(curQ->getType()=="e"){

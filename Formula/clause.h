@@ -10,7 +10,12 @@ class clause {
 private:
     std::vector<int> clauseVariables;
     int hExO;
+
+
+private:
+    bool marked;
 public:
+    clause() : marked(marked) { marked = false;}
     //adds a given variable to a clause
     void addVar(int i);
 
@@ -30,6 +35,14 @@ public:
 
     void setClauseVariables( std::vector<int> &clauseVariables) {
         clause::clauseVariables = clauseVariables;
+    }
+
+    bool isMarked() const {
+        return marked;
+    }
+
+    void setMarked(bool marked) {
+        clause::marked = marked;
     }
 
 };

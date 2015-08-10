@@ -75,8 +75,8 @@ bool withpp(formula f){
     //TODO: implement the nrResolvents as input parameter
     preprocessing pp;
     beginC = clock();
-    formula ppf = pp.heuristic_nrResolvents(f, 50);
-    return feedSolver(ppf);
+    pp.heuristic_nrResolvents(&f, 50);
+    return feedSolver(f);
 
 }
 
@@ -110,6 +110,11 @@ bool feedSolver(formula f){
         nestingLevel ++;
     }
     for(clause* cl  : f.getClauses()){
+        //this clause is subsumed by a deduced clause
+        if(cl->isMarked()) {
+//            cout << "dedurced" << cl << endl;
+            continue;
+        }
         for(int curVar : cl->getClauseVariables()){
             qdpll_add(depqbf,curVar);
         }

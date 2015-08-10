@@ -14,4 +14,14 @@ void formula::addC(clause *Clause) {
 }
 
 
+void formula::removeC(clause *pClause) {
+    for(int i=0; i<clauses.size(); i++){
+        if(pClause == clauses[i]){
 
+            clauses[i]->setMarked(true);
+            //clauses.erase(clauses.begin()+i);
+
+        }
+    }
+
+}
