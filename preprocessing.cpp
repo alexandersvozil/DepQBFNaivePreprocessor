@@ -2,7 +2,6 @@
 // Created by svozil on 29.07.15.
 //
 
-#include <unordered_set>
 #include "preprocessing.h"
 
 using namespace std;
@@ -35,24 +34,24 @@ void preprocessing::heuristic_nrResolvents(formula* in, int nrResolv){
                             goto enoughClauses;
                         }
                         //cout << "test1" << endl;
+
+                        /*cout << "c2: ";
+                        for(int var : c2->getClauseVariables()){
+                            cout << var + " ";
+                        }
+                        cout << endl; */
                         clause *k = resolve(c1, c2, curVar, in);
                       //  cout << "test1" << endl;
                         if (k != c1) {
+                          /*  cout << "resolved c: ";
+                            for(int var : k->getClauseVariables()){
+                                cout << var + " ";
+                            }
+                            cout << endl; */
                             clause* uk = universalR(k,in);
-                           // cout << "test1" << endl;
-                           // if (uk->getClauseVariables().size() < 3) {
-                                //cout << "ADDED A CLAUSE" << endl;
-                                //if we add a clause, the maps are not updated.
                                  add(in,uk);
-                            //cout << "test2" << endl;
-                                //in.addC(uk);
-                               // cout << "CODE 139heur" << endl;
-                                resCounter = resCounter + 2;
-                            //}
                             resCounter++;
                         }else{
-                            // cout << "TAUTOLOGICAL CLAUSE RECEIVED" << endl;
-                            //resCounter++;
                             continue;
                         }
                     }
@@ -75,31 +74,21 @@ void preprocessing::add(formula* f, clause *c) {
             subsumed = tmp;
 
         } else {
-            //TODO mark the clauses again taking away a multiplicative factor
-            //TODO NOT CORRECT
-
-            //cout << "subsumed size: " <<  subsumed.size() << endl;
             for (vector<clause*>::iterator it = subsumed.begin(); it != subsumed.end();) {
-//            for (int i = 0; i <= subsumed.size(); i++) {
-
                 bool found = false;
                 for (clause *c2 : tmp) {
-
                     if (*it == c2) {
                        // cout << "EQUAL: " <<  *it << " " << c2 << endl;
                         found = true;
                     }
-
                 }
                 if(found == false) {
                     //cout << "BROKE1" << endl;
-
                     it =subsumed.erase(it);
                     //cout << "BROKE2" << endl;
                 }else{
                     ++it;
                 }
-
 
                 if (subsumed.empty()) {
 //                  cout << "BROKE" << endl;
@@ -111,16 +100,18 @@ void preprocessing::add(formula* f, clause *c) {
     endloop:;
 
 //    cout << "subsumed size: " <<  subsumed.size() << endl;
+  //  cout << "deduced clause: " ;
+   /* for(int cur : c->getClauseVariables()){
+        cout << cur << " ";
+    }
+    cout << endl; */
     for(clause *k : subsumed){
-        for(int var : k->getClauseVariables()){
-     //      cout << var << " " ;
-        }
-   //     cout << endl;
+        /*for(int var : k->getClauseVariables()){
+            cout << var << " ";
+        }*/
+        //cout << "removed" << k << endl;
   //      cout << k  << " size: "<< k->getClauseVariables().size()<< endl;
         f->removeC(k);
-    }
-    for(int var : c->getClauseVariables()){
-    //    cout << var << " " ;
     }
     f->addC(c);
    //cout << endl;
@@ -172,48 +163,63 @@ clause* preprocessing::resolve(clause* c1, clause* c2, int toResolve, formula* f
     }
 
     bool tautological = false;
-    int marked [f->getNrVar()];
-    std::vector<int>& v = resultClause->getClauseVariables();
+    std::vector<int> marked(f->getNrVar()+1);
+    //fill_n(marked,f->getNrVar(),0);
+//    std::vector<int>& v = resultClause->getClauseVariables();
+   // cout << "clause1 : ";
     for(int curVar : c1->getClauseVariables()){
         if(abs(curVar) == abs(toResolve)) continue;
-        if(abs(curVar) == curVar) {
+      //  cout << curVar << " ";
+        if( curVar > 0) {
             marked[curVar] = 1;
         }else{
-            marked[curVar] = -1;
+            marked[(-1)*curVar] = -1;
         }
         resultClause->addVar(curVar);
 
     }
+    //cout << endl;
+    //cout << "clause2 : ";
     for (int curVar : c2->getClauseVariables()) {
         if(abs(curVar) == abs(toResolve)) continue;
+     //   cout << curVar << " ";
 
-        if(abs(curVar) == curVar){
+        if(curVar > 0){
             if(marked[curVar] == 1) {
                 continue;
             }else  if(marked[curVar] == -1){
                 tautological = true;
                 break;
-            } else{
+            } else if(marked[curVar] == 0){
+                //cout << "added: " <<  curVar << " " << endl;
                 resultClause->addVar(curVar);
             }
 
         }else{
-            if(marked[curVar] == 1){
+            if(marked[(-1)*curVar] == 1){
                 tautological = true;
                 break;
-            }else if (marked[curVar] == -1) {
+            }else if (marked[(-1)*curVar] == -1) {
                 continue;
             }else{
+
                 resultClause->addVar(curVar);
             }
 
         }
     }
+    //cout << endl;
+
 
     if(tautological) {
         delete (resultClause);
         return c1;
     }
+    /*cout << "result: ";
+    for(int curVar : resultClause->getClauseVariables()){
+        cout << curVar << " ";
+    }
+    cout << endl;*/
     return  resultClause;
 }
 

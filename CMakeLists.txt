@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 project(QBF_CPP)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Debug")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -std=c++11 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -std=c++11 -Wall -pedantic")
 set(SOURCE_FILES main.cpp)
 include_directories(depqbf formula)
 link_directories(depqbf)

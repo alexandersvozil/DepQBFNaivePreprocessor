@@ -15,7 +15,7 @@ private:
 private:
     bool marked;
 public:
-    clause() : marked(marked) { marked = false;}
+    clause() : marked(false) {}
     //adds a given variable to a clause
     void addVar(int i);
 

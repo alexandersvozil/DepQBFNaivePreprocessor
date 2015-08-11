@@ -1,9 +1,10 @@
 import os,subprocess
 filepath = "benchmarks/"
+path     = "Debug/"
 tol 	 = "200"
 for file in os.listdir(filepath):
  	print file
-	result1 =subprocess.Popen("timeout " +tol+"s ./QBF_CPP "+filepath + file, shell=True, stdout=subprocess.PIPE).stdout.read()
+	result1 =subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+filepath + file, shell=True, stdout=subprocess.PIPE).stdout.read()
 
 	if result1:
 		result1s = result1.split(" ")
@@ -11,7 +12,7 @@ for file in os.listdir(filepath):
 			print result1s
 		else:
 			print result1
-	result2=subprocess.Popen("timeout " +tol+"s ./QBF_CPP "+ filepath+ file +" -pp", shell = True,stdout=subprocess.PIPE).stdout.read()
+	result2=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+ filepath+ file +" -pp", shell = True,stdout=subprocess.PIPE).stdout.read()
 		
 	if result2:
 		result2s = result2.split(" ")
