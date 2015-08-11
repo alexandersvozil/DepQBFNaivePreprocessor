@@ -9,13 +9,10 @@
 class clause {
 private:
     std::vector<int> clauseVariables;
-    int hExO;
-
-
-private:
     bool marked;
+    int hExO;
 public:
-    clause() : marked(false) {}
+    clause() : marked(false), hExO(0) {}
     //adds a given variable to a clause
     void addVar(int i);
 

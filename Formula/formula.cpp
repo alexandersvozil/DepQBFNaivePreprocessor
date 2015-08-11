@@ -9,13 +9,13 @@ void formula::addQG(quantgroup* k) {
 }
 
 void formula::addC(clause *Clause) {
-    clauses.push_back(Clause);
+   this->clauses.push_back(Clause);
 
 }
 
 
 void formula::removeC(clause *pClause) {
-    for(int i=0; i<clauses.size(); i++){
+    for(signed int i=0; i<clauses.size(); i++){
         if(pClause == clauses[i]){
 
             clauses[i]->setMarked(true);

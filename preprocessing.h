@@ -32,7 +32,7 @@ public:
 
     clause *resolve(clause *c1, clause *c2, int toResolve, formula *f);
 
-    clause *universalR(clause *inC, formula *f);
+    void universalR(clause *inC, formula *f);
 };
 
 
