@@ -24,11 +24,17 @@ private:
      * this allows us to quickly check which clauses a variable is in
      */
     std::map<int, std::vector<clause*>> occurenceMap;
-
-private:
     int nrVar;
+    int nrClause;
 public:
 
+    int getNrClause() const {
+        return nrClause;
+    }
+
+    void setNrClause(int nrClause) {
+        formula::nrClause = nrClause;
+    }
     int getNrVar() const {
         return nrVar;
     }

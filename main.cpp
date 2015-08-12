@@ -6,13 +6,14 @@
 #include "preprocessing.h"
 #include <ctime>
 #include <thread>
+#include <unistd.h>
 
 extern "C" {
 #include "qdpll.h"
 }
 
 std::string usage();
-bool withpp(formula*);
+bool withpp(formula * , int , int );
 bool withoutpp(formula*);
 bool feedSolver(formula*);
 
@@ -25,47 +26,81 @@ clock_t beginC;
 
 
 int main(int argc, char *argv[]) {
-    if(argc != 3 && argc != 2) {
+    try {
+        int opt;
+        int maxClauses;
+        int mCSize = -1;
+        bool pMode = false;
+
+        if (argc < 2 || argc > 6) {
+            cout << usage();
+        }
+        while ((opt = getopt(argc, argv, "c:pP:")) != -1) {
+            switch (opt) {
+                case 'p':
+                    maxClauses = -1;
+                    pMode = true;
+                    break;
+                case 'P':
+                    maxClauses = stoi(optarg);
+
+                    pMode = true;
+                    break;
+                case 'c':
+                    mCSize = stoi(optarg);
+                    break;
+                default:
+                    cout << usage();
+                    break;
+            }
+        }
+        string path = argv[optind];
+        /*if(argc != 3 && argc != 2 && argc != 4) {
         cout << usage();
         return 2;
     }
-    string path = argv[1];
-    parser p;
-    double elapsed_secs=0;
-    try {
+    string path = argv[1]; */
+        parser p;
+        double elapsed_secs = 0;
         string modestring;
         bool result;
-        formula f_1 = p.parse(path);
-        if(  argc == 3 && std::string(argv[2]) == "-pp") {
-            result = withpp(&f_1);
+        formula f_1;
+        p.parse(path, &f_1);
+        if (pMode) {
+            result = withpp(&f_1, maxClauses, mCSize);
             clock_t end1 = clock();
             elapsed_secs = double(end1 - beginC) / CLOCKS_PER_SEC;
             modestring = "preprocessing";
-        }else {
+
+        } else {
             result = withoutpp(&f_1);
             clock_t end2 = clock();
             elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;
             modestring = "without";
         }
-        cout << "RESULT: " << "elapsed: " <<  elapsed_secs << " result: " << result << " mode: " << modestring << "."<< endl;
+
+        cout << "RESULT: " << "elapsed: " << elapsed_secs << " result: " << result << " mode: " << modestring << "." <<
+                              endl;
         freeFormula(&f_1);
 
-    }catch(FNFException f){
+    } catch (FNFException f) {
         cout << f.getMessage() << endl;
+        return -1;
 
-    }catch(ParseException f){
+    } catch (ParseException f) {
         cout << f.getMessage() << endl;
+        return -1;
+    } catch (invalid_argument){
+        cout << "please provide integer arguments for the respective options" << endl;
+        cout << usage();
+        return -1;
     }
+
     return 0;
 }
 
 void freeFormula(formula* formula1) {
     for(clause* c : formula1->getClauses()){
-      /*  cout << "clause: ";
-        for(int k : c->getClauseVariables()){
-            cout << k  << " ";
-        }
-        cout << endl; */
         delete c;
     }
     for(quantgroup* q: formula1->getQuantgroups()){
@@ -75,7 +110,9 @@ void freeFormula(formula* formula1) {
 
 
 std::string usage() {
-    return "USAGE: qbf_cpp path_to_qdimacs_file [use preprocessing -pp]\n";
+    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] path_to_qdimacs_file\n -p means that 5% "
+            "are the maximum number of added clauses, -P lets you define the number in total, -c lets you restrict the maximum "
+            "clause size of the resolved and added clauses \n";
 }
 
 
@@ -87,13 +124,12 @@ bool withoutpp(formula* f){
 
 
 //use the nrResolvents heuristics
-bool withpp(formula* f){
+bool withpp(formula *f, int nrResolvents, int maxNrRes) {
     //TODO: implement the nrResolvents as input parameter
     preprocessing pp;
     beginC = clock();
-    //cout << "size: " <<  f->getClauses().size() << endl;
-    pp.heuristic_nrResolvents(f, 50);
-    //cout << "size: " <<  f->getClauses().size() << endl;
+    if(nrResolvents == -1) nrResolvents = f->getNrClause()*0.05;
+    pp.heuristic_nrResolvents(f, nrResolvents, maxNrRes);
     return feedSolver(f);
 
 }
@@ -103,11 +139,12 @@ bool feedSolver(formula *f){
     QDPLL *depqbf = qdpll_create ();
 
     /* Use the linear ordering of the quantifier prefix. */
-    char const * conf_1 = "--dep-man=simple";
-    char const* conf_2 = "--incremental-use";
-    qdpll_configure (depqbf,(char *) conf_1 );
+    //const char  *
+    string  conf_1 = "--dep-man=simple";
+    string conf_2 = "--incremental-use";
+    qdpll_configure (depqbf,(char *) conf_1.c_str() );
     /* Enable incremental solving. */
-    qdpll_configure (depqbf, (char *) conf_2 );
+    qdpll_configure (depqbf, (char *) conf_2.c_str() );
     int nestingLevel = 1;
     for(quantgroup* q : f->getQuantgroups()){
         if(q->getType()=="a"){

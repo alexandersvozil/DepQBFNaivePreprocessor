@@ -5,10 +5,10 @@
 #include "parser.h"
 
 using namespace std;
-formula parser::parse(string qdimacsInputPath) {
-    formula resultFormula = formula();
-    std::map<int,quantgroup*> qmap = resultFormula.getQuantifierMap();
-    std::map<int,std::vector<clause*>> omap = resultFormula.getOccurenceMap();
+void parser::parse(std::string qdimacsInputPath, formula *pFormula) {
+    formula* resultFormula = pFormula;
+    std::map<int,quantgroup*> qmap = resultFormula->getQuantifierMap();
+    std::map<int,std::vector<clause*>> omap = resultFormula->getOccurenceMap();
     ifstream fin;
     fin.open(qdimacsInputPath);
     if(!fin.good()){
@@ -37,8 +37,9 @@ formula parser::parse(string qdimacsInputPath) {
                 throw ParseException("second string is not cnf. Is this QDIMACS format input data?");
             }
             fin >> nrVariables;
-            resultFormula.setNrVar(nrVariables);
+            resultFormula->setNrVar(nrVariables);
             fin >> nrClauses;
+            resultFormula->setNrClause(nrClauses);
             firstLine = false;
         }
         string type;
@@ -61,7 +62,7 @@ formula parser::parse(string qdimacsInputPath) {
                     q->addVariable(curVar);
                     fin >> curVar;
                 }
-                resultFormula.addQG(q);
+                resultFormula->addQG(q);
 
             } else if (type == "a") {
                 quantgroup* q = new quantgroup();
@@ -76,7 +77,7 @@ formula parser::parse(string qdimacsInputPath) {
                     fin >> curVar;
                 }
 
-                resultFormula.addQG(q);
+                resultFormula->addQG(q);
             }else{
                 throw ParseException("unknown symbol in QDIMACS file: "+type);
             }
@@ -122,31 +123,12 @@ formula parser::parse(string qdimacsInputPath) {
                 fin >> curVar;
 
             }
-            resultFormula.addC(c);
+            resultFormula->addC(c);
            // std::cout << std::endl;
         }
 
     }
-    resultFormula.setOccurenceMap(omap);
-    resultFormula.setQuantifierMap(qmap);
-    //vector<clause*>* test = resultFormula.getOccurenceMap().find(1)->second;
-    /*never had to work with c++ pointers
-     * for(clause* c: *test){
-        for(int k : c->getClauseVariables()){
-            std::cout << "FUCKING TEST " << k << std::endl;
-        }
-
-    }
-
-    std::cout << "FUCKING TEST " << test->size() << std::endl; */
-    /*for(int i=0; i < qmap.size(); i++){
-        quantgroup* curGroup = qmap.find(i+1)->second;
-        std::cout<<"variable " << i <<" is contained in the following quantifier group" << std::endl;
-        for(int var :curGroup->getVariables()){
-            std::cout<< var;
-        }
-        std::cout<<std::endl;
-    }*/
-    return  resultFormula;
+    resultFormula->setOccurenceMap(omap);
+    resultFormula->setQuantifierMap(qmap);
 }
 

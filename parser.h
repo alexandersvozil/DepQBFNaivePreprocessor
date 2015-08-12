@@ -20,7 +20,7 @@ class parser {
 
 public:
     //parse the qDimacsFile
-    formula parse(std::string qDimacsInput);
+    void parse(std::string qDimacsInput, formula *pFormula);
 };
 
 

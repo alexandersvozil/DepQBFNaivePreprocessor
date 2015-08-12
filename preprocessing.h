@@ -15,23 +15,16 @@
 class preprocessing {
 public:
 
-    //the preprocessing with a capped number of resolvents
-    formula heuristic_nrResolvents(formula in, int nrResolvents);
+    //the preprocessing with a capped number of resolvents and a maxed Claussize -1 for unlimited
+    void heuristic_nrResolvents(formula *in, int nrResolvents, int maxClauseSize);
 
-    //universal reduction
-    clause *universalR(clause *inC, formula f);
-
-    //resolve over the two given clauses and a given variable
-    clause *resolve(clause *c1, clause *c2, int toResolve, formula f);
-
-    formula add(formula f, clause *c);
-
+    //adds the clause to the formula and checks for subsumption
     void add(formula *f, clause *c);
 
-    void heuristic_nrResolvents(formula *in, int nrResolv);
-
+    //resolve over the two given clauses and a given variable
     clause *resolve(clause *c1, clause *c2, int toResolve, formula *f);
 
+    //universal reduction
     void universalR(clause *inC, formula *f);
 };
 
