@@ -26,6 +26,8 @@ public:
 
     //universal reduction
     void universalR(clause *inC, formula *f);
+
+    void subsumptionCheck(formula *f, clause *c);
 };
 
 

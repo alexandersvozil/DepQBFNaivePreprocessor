@@ -34,7 +34,7 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
                     if (k != c1) {
                         universalR(k, in);
                         if(smode) {
-                            add(in, k);
+                           add(in, k);
                         }else {
                             in->addC(k);
                         }
@@ -50,9 +50,46 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
     }
     enoughClauses:;
 
+    //maybe check for subsumption in any clause
+    /*for(clause* curClause: in->getClauses()){
+        subsumptionCheck(in,curClause);
+    } */
     //return *in;
 }
+void preprocessing::subsumptionCheck(formula *f, clause*c){
 
+    std::map<int, vector<clause *>> &omap = f->getOccurenceMap();
+    vector <clause *> modified;
+    int cSize = c->getClauseVariables().size();
+    for(int var : c->getClauseVariables()){
+        vector<clause * >& k = omap.find(var)->second;
+        for(clause* curClause: k){
+            if(curClause->isMarked()) continue;
+            if(curClause == c) continue;
+            int curClauseSize = curClause->getClauseVariables().size();
+
+            curClause->incRSubcount();
+            modified.push_back(curClause);
+
+            //curClause is subsumed
+            if(curClause->getSubcount() == cSize){
+                curClause->setMarked(true);
+            }
+
+            //the clause we tried to add is subsumed by curClause
+            if(curClause->getSubcount() == curClauseSize){
+                c->setMarked(true);
+                goto endloop;
+            }
+        }
+    }
+    //f->addC(c);
+    endloop:;
+    for(clause* unm : modified){
+        unm->resetSubcount();
+    }
+
+}
 void preprocessing::add(formula *f, clause *c) {
     // we could also limit the clause size for subsumption
     /*if(c->getClauseVariables().size() > 7){
