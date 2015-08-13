@@ -54,9 +54,44 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
 }
 
 void preprocessing::add(formula *f, clause *c) {
+    // we could also limit the clause size for subsumption
+    /*if(c->getClauseVariables().size() > 7){
+        f->addC(c);
+        return;
+    } */
     std::map<int, vector<clause *>> &omap = f->getOccurenceMap();
+    vector <clause *> modified;
+    int cSize = c->getClauseVariables().size();
+    for(int var : c->getClauseVariables()){
+        vector<clause * >& k = omap.find(var)->second;
+        for(clause* curClause: k){
+            if(curClause->isMarked()) continue;
+            if(curClause == c) continue;
+            int curClauseSize = curClause->getClauseVariables().size();
+
+            curClause->incRSubcount();
+            modified.push_back(curClause);
+
+            //curClause is subsumed
+            if(curClause->getSubcount() == cSize){
+                curClause->setMarked(true);
+            }
+
+            //the clause we tried to add is subsumed by curClause
+            if(curClause->getSubcount() == curClauseSize){
+               goto endloop;
+            }
+        }
+    }
+    f->addC(c);
+    endloop:;
+    for(clause* unm : modified){
+       unm->resetSubcount();
+    }
+
 
     //TODO: mark the clauses, use information about c_1, c_2. They can never be subsumed by the resolvent
+    /*
     vector<clause *> subsumed;
     for (int curSub : c->getClauseVariables()) {
         vector<clause *> tmp = omap.find(curSub)->second;
@@ -93,7 +128,7 @@ void preprocessing::add(formula *f, clause *c) {
         f->removeC(k);
     }
 
-    f->addC(c);
+    f->addC(c); */
 }
 
 void preprocessing::universalR(clause *inC, formula *f) {

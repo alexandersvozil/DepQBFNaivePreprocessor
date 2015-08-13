@@ -10,9 +10,26 @@ class clause {
 private:
     std::vector<int> clauseVariables;
     bool marked;
+    int subcount;
     int hExO;
 public:
-    clause() : marked(false), hExO(0) {}
+
+    int getSubcount() const {
+        return subcount;
+    }
+
+    void resetSubcount(){
+        subcount = 0;
+    }
+
+    void incRSubcount(){
+        subcount ++;
+    }
+    void setSubcount(int subcount) {
+        clause::subcount = subcount;
+    }
+
+    clause() : marked(false),subcount(0), hExO(0) {}
     //adds a given variable to a clause
     void addVar(int i);
 

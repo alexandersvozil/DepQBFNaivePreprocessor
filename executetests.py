@@ -12,7 +12,8 @@ for file in os.listdir(filepath):
 			print result1s
 		else:
 			print result1
-	result2=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+ filepath+ file +" -pp", shell = True,stdout=subprocess.PIPE).stdout.read()
+	result2=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
+                filepath+ file +" -p -s", shell = True,stdout=subprocess.PIPE).stdout.read()
 		
 	if result2:
 		result2s = result2.split(" ")
