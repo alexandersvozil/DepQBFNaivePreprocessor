@@ -16,7 +16,7 @@ class preprocessing {
 public:
 
     //the preprocessing with a capped number of resolvents and a maxed Claussize -1 for unlimited
-    void heuristic_nrResolvents(formula *in, int nrResolvents, int maxClauseSize);
+    void heuristic_nrResolvents(formula *in, int nrResolvents, int maxClauseSize, bool smode);
 
     //adds the clause to the formula and checks for subsumption
     void add(formula *f, clause *c);

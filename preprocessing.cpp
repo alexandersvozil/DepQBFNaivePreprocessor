@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSize) {
+void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSize, bool smode) {
 
     map<int, quantgroup *> &qmap = in->getQuantifierMap();
     map<int, vector<clause *>> &omap = in->getOccurenceMap();
@@ -33,7 +33,11 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
                     clause* k = resolve(c1, c2, curVar, in);
                     if (k != c1) {
                         universalR(k, in);
-                        add(in, k);
+                        if(smode) {
+                            add(in, k);
+                        }else {
+                            in->addC(k);
+                        }
                         resCounter++;
                     } else {
                         continue;
@@ -52,6 +56,7 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
 void preprocessing::add(formula *f, clause *c) {
     std::map<int, vector<clause *>> &omap = f->getOccurenceMap();
 
+    //TODO: mark the clauses, use information about c_1, c_2. They can never be subsumed by the resolvent
     vector<clause *> subsumed;
     for (int curSub : c->getClauseVariables()) {
         vector<clause *> tmp = omap.find(curSub)->second;

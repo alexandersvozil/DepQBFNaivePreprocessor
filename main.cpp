@@ -13,7 +13,7 @@ extern "C" {
 }
 
 std::string usage();
-bool withpp(formula * , int , int );
+bool withpp(formula * f, int maxC, int maxCSize , bool subsumption);
 bool withoutpp(formula*);
 bool feedSolver(formula*);
 
@@ -31,12 +31,17 @@ int main(int argc, char *argv[]) {
         int maxClauses;
         int mCSize = -1;
         bool pMode = false;
+        bool sMode = false;
 
         if (argc < 2 || argc > 6) {
             cout << usage();
         }
-        while ((opt = getopt(argc, argv, "c:pP:")) != -1) {
+        while ((opt = getopt(argc, argv, "c:pP:s")) != -1) {
             switch (opt) {
+                case 's':
+                    sMode = true;
+                    break;
+
                 case 'p':
                     maxClauses = -1;
                     pMode = true;
@@ -67,7 +72,7 @@ int main(int argc, char *argv[]) {
         formula f_1;
         p.parse(path, &f_1);
         if (pMode) {
-            result = withpp(&f_1, maxClauses, mCSize);
+            result = withpp(&f_1, maxClauses, mCSize, sMode);
             clock_t end1 = clock();
             elapsed_secs = double(end1 - beginC) / CLOCKS_PER_SEC;
             modestring = "preprocessing";
@@ -110,7 +115,7 @@ void freeFormula(formula* formula1) {
 
 
 std::string usage() {
-    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] path_to_qdimacs_file\n -p means that 5% "
+    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] [-s] path_to_qdimacs_file\n -p means that 5% "
             "are the maximum number of added clauses, -P lets you define the number in total, -c lets you restrict the maximum "
             "clause size of the resolved and added clauses \n";
 }
@@ -124,12 +129,12 @@ bool withoutpp(formula* f){
 
 
 //use the nrResolvents heuristics
-bool withpp(formula *f, int nrResolvents, int maxNrRes) {
+bool withpp(formula *f, int nrResolvents, int maxNrRes, bool b) {
     //TODO: implement the nrResolvents as input parameter
     preprocessing pp;
     beginC = clock();
     if(nrResolvents == -1) nrResolvents = f->getNrClause()*0.05;
-    pp.heuristic_nrResolvents(f, nrResolvents, maxNrRes);
+    pp.heuristic_nrResolvents(f, nrResolvents, maxNrRes, b);
     return feedSolver(f);
 
 }
