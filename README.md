@@ -11,6 +11,6 @@ Compilation instructions:
 
 
 Credits:
-Florian Lonsing for his wonderful QBF-Solver DepQBF: http://lonsing.github.io/depqbf/ 
-Enrico Giunchiglia, Paolo Marin and Massimo Narizzano: Preprocessing Techniques
+1. Florian Lonsing for his wonderful QBF-Solver DepQBF: http://lonsing.github.io/depqbf/ 
+2. Enrico Giunchiglia, Paolo Marin and Massimo Narizzano: Preprocessing Techniques
 for QBFs (http://ceur-ws.org/Vol-451/paper09giunchiglia.pdf) - on page 8 they desribe a very intuitive and effective way to remove subsumption in clauses.
