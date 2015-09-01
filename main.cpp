@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
                     break;
                 case 'P':
                     maxClauses = stoi(optarg);
-
                     pMode = true;
                     break;
                 case 'c':
@@ -61,6 +60,7 @@ int main(int argc, char *argv[]) {
                 case 'v':
                     dVariablesMode = true;
                     break;
+
                 default:
                     cout << usage();
                     break;
@@ -134,8 +134,8 @@ void freeFormula(formula* formula1) {
 
 
 std::string usage() {
-    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] [-s] path_to_qdimacs_file\n -p means that 5% "
-            "are the maximum number of added clauses, -P lets you define the number in total, -c lets you restrict the maximum "
+    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] [-s] [-l] path_to_qdimacs_file\n -p,-l means that 5% "
+            "are the maximum number of added clauses -l uses LDR and p QU-resolution, -P lets you define the number in total, -c lets you restrict the maximum "
             "clause size of the resolved and added clauses \n";
 }
 
