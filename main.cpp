@@ -87,24 +87,16 @@ int main(int argc, char *argv[]) {
         }else if(LDRMode){
             preprocessing preprocessing1;
             beginC = clock();
-//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
-//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
-            preprocessing1.heuristic_LDR_nrResolvents(&f_1,maxClauses*0.05,0,false);
+            if(maxClauses = -1) {
+                maxClauses = f_1.getNrClause()*0.05;
+            }
+            preprocessing1.heuristic_LDR_nrResolvents(&f_1,maxClauses,mCSize,sMode);
+            result = feedSolver(&f_1);
             clock_t end2 = clock();
             elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;
-            result = feedSolver(&f_1);
             modestring = "LDR";
 
-        }else if(dVariablesMode){
-            preprocessing preprocessing1;
-            beginC = clock();
-//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
-//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
-            clock_t end2 = clock();
-            elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;
-            result = feedSolver(&f_1);
-            modestring = "deleteVariables";
-        } else  {
+        }else  {
             result = withoutpp(&f_1);
             clock_t end2 = clock();
             elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;

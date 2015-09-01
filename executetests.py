@@ -13,7 +13,7 @@ for file in os.listdir(filepath):
 		else:
 			print result1
 	else:
-		print "Solver failed after " + tol + "seconds."
+		print "Solver failed after " + tol + "seconds.\n"
 	result2=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
                 filepath+ file +" -p -s", shell = True,stdout=subprocess.PIPE).stdout.read()
 		
@@ -24,7 +24,7 @@ for file in os.listdir(filepath):
 		else:
 			print result2
 	else:
-		print "PP + Solver failed after " + tol + "seconds."
+		print "PP + Solver failed after " + tol + "seconds.\n"
 
 	result3=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
                 filepath+ file +" -p ", shell = True,stdout=subprocess.PIPE).stdout.read()
@@ -36,7 +36,7 @@ for file in os.listdir(filepath):
 		else:
 			print result3
 	else:
-		print "PP + Solver without ss failed after " + tol  + "seconds." 
+		print "PP + Solver without ss failed after " + tol  + "seconds.\n" 
 			
         
 	result4=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
@@ -48,7 +48,18 @@ for file in os.listdir(filepath):
 		else:
 			print result4
 	else:
-		print "PP + Solver without ss failed after " + tol  + "seconds." 
+		print "LTRS without ss failed after " + tol  + "seconds. \n" 
+
+	result5=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
+                filepath+ file +" -l -s", shell = True,stdout=subprocess.PIPE).stdout.read()
+	if result5:
+		result5s = result5.split(" ")
+		if result5s[0] == "RESULT:":
+			print result5s
+		else:
+			print result5
+	else:
+		print "LTRS with ss failed after " + tol  + "seconds. \n" 
 
 	if result2 and result1:
 		result1s = result1.split(" ")
