@@ -32,16 +32,20 @@ int main(int argc, char *argv[]) {
         int mCSize = -1;
         bool pMode = false;
         bool sMode = false;
+        bool dVariablesMode = false;
+        bool LDRMode = false;
 
         if (argc < 2 || argc > 6) {
             cout << usage();
         }
-        while ((opt = getopt(argc, argv, "c:pP:s")) != -1) {
+        while ((opt = getopt(argc, argv, "lvc:pP:s")) != -1) {
             switch (opt) {
                 case 's':
                     sMode = true;
                     break;
-
+                case 'l':
+                    LDRMode = true;
+                    break;
                 case 'p':
                     maxClauses = -1;
                     pMode = true;
@@ -54,17 +58,20 @@ int main(int argc, char *argv[]) {
                 case 'c':
                     mCSize = stoi(optarg);
                     break;
+                case 'v':
+                    dVariablesMode = true;
+                    break;
                 default:
                     cout << usage();
                     break;
             }
         }
         string path = argv[optind];
-        /*if(argc != 3 && argc != 2 && argc != 4) {
-        cout << usage();
-        return 2;
-    }
-    string path = argv[1]; */
+
+        if(LDRMode + dVariablesMode + pMode > 1 ){
+            cout << usage();
+            return 2;
+        }
         parser p;
         double elapsed_secs = 0;
         string modestring;
@@ -77,7 +84,27 @@ int main(int argc, char *argv[]) {
             elapsed_secs = double(end1 - beginC) / CLOCKS_PER_SEC;
             modestring = "preprocessing";
 
-        } else {
+        }else if(LDRMode){
+            preprocessing preprocessing1;
+            beginC = clock();
+//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
+//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
+            preprocessing1.heuristic_LDR_nrResolvents(&f_1,maxClauses*0.05,0,false);
+            clock_t end2 = clock();
+            elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;
+            result = feedSolver(&f_1);
+            modestring = "LDR";
+
+        }else if(dVariablesMode){
+            preprocessing preprocessing1;
+            beginC = clock();
+//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
+//            preprocessing1.heuristic_deleteVariables(&f_1, 4);
+            clock_t end2 = clock();
+            elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;
+            result = feedSolver(&f_1);
+            modestring = "deleteVariables";
+        } else  {
             result = withoutpp(&f_1);
             clock_t end2 = clock();
             elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;

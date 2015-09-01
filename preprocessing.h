@@ -28,6 +28,12 @@ public:
     void universalR(clause *inC, formula *f);
 
     void subsumptionCheck(formula *f, clause *c);
+
+    void heuristic_deleteVariables(formula *in, int i);
+
+    void heuristic_LDR_nrResolvents(formula *in, int nrResolvents, int maxClauseSize, bool smode);
+
+    clause *resolveLDR(clause *pClause, clause *c2, int var, formula *pFormula);
 };
 
 
