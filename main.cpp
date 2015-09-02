@@ -87,8 +87,11 @@ int main(int argc, char *argv[]) {
         }else if(LDRMode){
             preprocessing preprocessing1;
             beginC = clock();
-            if(maxClauses = -1) {
-                maxClauses = f_1.getNrClause()*0.05;
+            if(maxClauses = -1 && !sMode) {
+                maxClauses = f_1.getNrClause()*0.03;
+            }
+            if(maxClauses = -1 && sMode) {
+                maxClauses = f_1.getNrClause()*0.1;
             }
             preprocessing1.heuristic_LDR_nrResolvents(&f_1,maxClauses,mCSize,sMode);
             result = feedSolver(&f_1);
@@ -152,7 +155,8 @@ bool withpp(formula *f, int nrResolvents, int maxNrRes, bool b) {
     //TODO: implement the nrResolvents as input parameter
     preprocessing pp;
     beginC = clock();
-    if(nrResolvents == -1) nrResolvents = f->getNrClause()*0.05;
+    if(nrResolvents == -1 && b) nrResolvents = f->getNrClause()*0.10;
+    if(nrResolvents == -1 && !b) nrResolvents = f->getNrClause()*0.03;
     pp.heuristic_nrResolvents(f, nrResolvents, maxNrRes, b);
     return feedSolver(f);
 
