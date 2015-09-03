@@ -36,9 +36,10 @@ void preprocessing::heuristic_LDR_nrResolvents(formula *in, int nrResolv, int ma
                         goto enoughClauses;
                     }
 
+                    universalR(c1, in);
+                    universalR(c2, in);
                     clause* k = resolveLDR(c1, c2, curVar, in);
                     if (k != c1) {
-                        universalR(k, in);
 
                         if(smode) {
                             add(in, k);
@@ -83,9 +84,10 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
                         goto enoughClauses;
                     }
 
+                    universalR(c1, in);
+                    universalR(c2, in);
                     clause* k = resolve(c1, c2, curVar, in);
                     if (k != c1) {
-                        universalR(k, in);
 
                         if(smode) {
                            add(in, k);
