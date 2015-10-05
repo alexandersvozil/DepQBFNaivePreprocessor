@@ -19,7 +19,7 @@ public:
     void heuristic_nrResolvents(formula *in, int nrResolvents, int maxClauseSize, bool smode);
 
     //adds the clause to the formula and checks for subsumption
-    void add(formula *f, clause *c);
+    int add(formula *f, clause *c, int i);
 
     //resolve over the two given clauses and a given variable
     clause *resolve(clause *c1, clause *c2, int toResolve, formula *f);
@@ -34,6 +34,12 @@ public:
     void heuristic_LDR_nrResolvents(formula *in, int nrResolvents, int maxClauseSize, bool smode);
 
     clause *resolveLDR(clause *pClause, clause *c2, int var, formula *pFormula);
+
+    int dBySubS = 0;
+    int addedClausesByResolution = 0;
+    int removedVariablesByUR = 0;
+    int rescB = 0;
+
 };
 
 

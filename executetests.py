@@ -8,27 +8,27 @@ for file in os.listdir(filepath):
 	if result1:
 		result1s = result1.split(" ")
 		if result1s[0] == "RESULT:":
-			print result1s
+			print result1
 		else:
 			print result1
 	else:
 		print "Solver failed after " + tol + "seconds."
 	result2=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
-                filepath+ file +" -p -s", shell = True,stdout=subprocess.PIPE).stdout.read()
+                filepath+ file +" -p ", shell = True,stdout=subprocess.PIPE).stdout.read()
 	if result2:
 		result2s = result2.split(" ")
 		if result2s[0] == "RESULT:":
-			print result2s
+			print result2
 		else:
 			print result2
 	else:
 		print "QUResolution failed after " + tol + "seconds."
 	result3=subprocess.Popen("timeout " +tol+"s "+path+"./QBF_CPP "+
-                filepath+ file +" -p ", shell = True,stdout=subprocess.PIPE).stdout.read()
+                filepath+ file +" -p -s", shell = True,stdout=subprocess.PIPE).stdout.read()
 	if result3:
 		result3s = result3.split(" ")
 		if result3s[0] == "RESULT:":
-			print result3s
+			print result3
 		else:
 			print result3
 	else:
@@ -38,7 +38,7 @@ for file in os.listdir(filepath):
 	if result4:
 		result4s = result4.split(" ")
 		if result4s[0] == "RESULT:":
-			print result4s
+			print result4
 		else:
 			print result4
 	else:
@@ -48,7 +48,7 @@ for file in os.listdir(filepath):
 	if result5:
 		result5s = result5.split(" ")
 		if result5s[0] == "RESULT:":
-			print result5s
+			print result5
 		else:
 			print result5
 	else:
@@ -101,7 +101,7 @@ for file in os.listdir(filepath):
 
         #check for correctness:
         if(min(correc_list) != max(correc_list)):
-            print "UNDSOUND RESULT"
+            print "UNSOUND RESULT"
             break
 
 #	if result2 and result1:

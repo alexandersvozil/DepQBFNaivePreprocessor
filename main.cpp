@@ -28,7 +28,7 @@ clock_t beginC;
 int main(int argc, char *argv[]) {
     try {
         int opt;
-        int maxClauses;
+        int maxClauses = -1;
         int mCSize = -1;
         bool pMode = false;
         bool sMode = false;
@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
 
         if (argc < 2 || argc > 6) {
             cout << usage();
+            return -1;
         }
         while ((opt = getopt(argc, argv, "lvc:pP:s")) != -1) {
             switch (opt) {
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]) {
 
                 default:
                     cout << usage();
-                    break;
+                    return -1;
             }
         }
         string path = argv[optind];
@@ -78,26 +79,48 @@ int main(int argc, char *argv[]) {
         bool result;
         formula f_1;
         p.parse(path, &f_1);
+        int subsD = 0, resC = 0, varD = 0, rescB = 0;
         if (pMode) {
-            result = withpp(&f_1, maxClauses, mCSize, sMode);
+            //result = withpp(&f_1, maxClauses, mCSize, sMode);
+
+            preprocessing pp;
+            if(maxClauses == -1 && sMode) {
+                maxClauses = ceil(f_1.getNrClause()*0.05);
+            }
+            if(maxClauses == -1 && !sMode){ maxClauses = ceil(f_1.getNrClause()*0.05);
+                //cout << maxClauses << " csize: " << f_1.getNrClause() << endl;
+            }
+
+            beginC = clock();
+            pp.heuristic_nrResolvents(&f_1, maxClauses, mCSize, sMode);
+            result = feedSolver(&f_1);
             clock_t end1 = clock();
             elapsed_secs = double(end1 - beginC) / CLOCKS_PER_SEC;
             modestring = "preprocessing";
 
+            subsD = pp.dBySubS;
+            resC = pp.addedClausesByResolution;
+            varD = pp.removedVariablesByUR;
+            rescB = pp.rescB;
+
         }else if(LDRMode){
-            preprocessing preprocessing1;
+            preprocessing pp;
             beginC = clock();
-            if(maxClauses = -1 && !sMode) {
-                maxClauses = f_1.getNrClause()*0.03;
-            }
-            if(maxClauses = -1 && sMode) {
+                maxClauses = ceil(f_1.getNrClause()*0.05);
+               // cout << maxClauses << " csize: " << f_1.getNrClause() << endl;
+            /*if(maxClauses = -1 && sMode) {
                 maxClauses = f_1.getNrClause()*0.1;
-            }
-            preprocessing1.heuristic_LDR_nrResolvents(&f_1,maxClauses,mCSize,sMode);
+            }*/
+            pp.heuristic_LDR_nrResolvents(&f_1,maxClauses,mCSize,sMode);
             result = feedSolver(&f_1);
             clock_t end2 = clock();
             elapsed_secs = double(end2 - beginC) / CLOCKS_PER_SEC;
             modestring = "LDR";
+
+            subsD = pp.dBySubS;
+            resC = pp.addedClausesByResolution;
+            varD = pp.removedVariablesByUR;
+            rescB = pp.rescB;
 
         }else  {
             result = withoutpp(&f_1);
@@ -108,6 +131,16 @@ int main(int argc, char *argv[]) {
 
         cout << "RESULT: " << "elapsed: " << elapsed_secs << " result: " << result << " mode: " << modestring << "." <<
                               endl;
+        if(LDRMode || pMode) {
+            if(sMode) {
+                cout << "Clauses deleted by subsumption: " << subsD << endl
+                << "Resolved clauses that are subsumed by the original clauses: " << rescB<< endl;
+            }
+            cout << "Clauses added by resolution: " << resC << endl
+            << "Variables deleted by universal reduction: " << varD << endl;
+        }
+
+
         freeFormula(&f_1);
 
     } catch (FNFException f) {

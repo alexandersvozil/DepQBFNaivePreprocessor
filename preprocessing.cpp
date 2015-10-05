@@ -35,18 +35,18 @@ void preprocessing::heuristic_LDR_nrResolvents(formula *in, int nrResolv, int ma
                     if (resCounter >= nrResolv) {
                         goto enoughClauses;
                     }
-
                     universalR(c1, in);
+
+                //    cout << c1 << " bla:" << c2<< endl;
                     universalR(c2, in);
                     clause* k = resolveLDR(c1, c2, curVar, in);
                     if (k != c1) {
-
                         if(smode) {
-                            add(in, k);
+                           resCounter = add(in, k, resCounter);
                         }else {
                             in->addC(k);
+                            resCounter++;
                         }
-                        resCounter++;
                     } else {
                         continue;
                     }
@@ -58,6 +58,7 @@ void preprocessing::heuristic_LDR_nrResolvents(formula *in, int nrResolv, int ma
     }
     enoughClauses:;
 
+    addedClausesByResolution = resCounter;
 }
 
 void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSize, bool smode) {
@@ -85,16 +86,40 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
                     }
 
                     universalR(c1, in);
+                    //check if we deleted our curvar
+                    bool curvarcheck1 = false;
+                    for(int var : c1->getClauseVariables() ){
+                        if(abs(var) == curVar){
+                            curvarcheck1 = true;
+                            break;
+                        }
+                    }
+                    if(!curvarcheck1){
+                        cout << "we deleted curvar";
+                    continue;
+                    }
+
                     universalR(c2, in);
+
+                    bool curvarcheck2 = false;
+                    for(int var : c2->getClauseVariables() ){
+                        if(abs(var) == curVar){
+                            curvarcheck2 = true;
+                            break;
+                        }
+                    }
+                    if(!curvarcheck2){
+                        //cout << "we deleted curvar";
+                    continue;
+                    }
                     clause* k = resolve(c1, c2, curVar, in);
                     if (k != c1) {
-
                         if(smode) {
-                           add(in, k);
+                            resCounter = add(in, k, resCounter);
                         }else {
                             in->addC(k);
+                            resCounter++;
                         }
-                        resCounter++;
                     } else {
                         continue;
                     }
@@ -106,47 +131,14 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
     }
     enoughClauses:;
 
+    addedClausesByResolution = resCounter;
     //maybe check for subsumption in any clause
     /*for(clause* curClause: in->getClauses()){
         subsumpti
     } */
     //return *in;
 }
-void preprocessing::subsumptionCheck(formula *f, clause*c){
-
-    std::map<int, vector<clause *>> &omap = f->getOccurenceMap();
-    vector <clause *> modified;
-    int cSize = c->getClauseVariables().size();
-    for(int var : c->getClauseVariables()){
-        vector<clause * >& k = omap.find(var)->second;
-        for(clause* curClause: k){
-            if(curClause->isMarked()) continue;
-            if(curClause == c) continue;
-            int curClauseSize = curClause->getClauseVariables().size();
-
-            curClause->incRSubcount();
-            modified.push_back(curClause);
-
-            //curClause is subsumed
-            if(curClause->getSubcount() == cSize){
-                curClause->setMarked(true);
-            }
-
-            //the clause we tried to add is subsumed by curClause
-            if(curClause->getSubcount() == curClauseSize){
-                c->setMarked(true);
-                goto endloop;
-            }
-        }
-    }
-    //f->addC(c);
-    endloop:;
-    for(clause* unm : modified){
-        unm->resetSubcount();
-    }
-
-}
-void preprocessing::add(formula *f, clause *c) {
+int preprocessing::add(formula *f, clause *c, int i) {
     // we could also limit the clause size for subsumption
     /*if(c->getClauseVariables().size() > 7){
         f->addC(c);
@@ -167,20 +159,24 @@ void preprocessing::add(formula *f, clause *c) {
 
             //curClause is subsumed
             if(curClause->getSubcount() == cSize){
+                dBySubS++;
                 curClause->setMarked(true);
             }
 
             //the clause we tried to add is subsumed by curClause
             if(curClause->getSubcount() == curClauseSize){
+                rescB ++;
                goto endloop;
             }
         }
     }
+    i++;
     f->addC(c);
     endloop:;
     for(clause* unm : modified){
        unm->resetSubcount();
     }
+    return i;
 }
 
 void preprocessing::universalR(clause *inC, formula *f) {
@@ -189,16 +185,20 @@ void preprocessing::universalR(clause *inC, formula *f) {
     //for each variable in the incoming clause
     for (auto iter = inC->getClauseVariables().begin(); iter != inC->getClauseVariables().end();) {
         //get the quantifier groupe of var
+      //  cout << *iter << endl ;
         quantgroup *corQ = qmap.find(abs(*iter))->second;
         /*if it is of type "a" we can eventually delete it from the clause if we dont find any existential variable
         depending on it */
 //        cout << var << endl;
         if (corQ->getType() == "a") {
             //get Ordering produces the highest existential variable of the clause
+           // cout << inC->getHExO() << " " << corQ->getOrdering() << endl;
             if (inC->getHExO() > corQ->getOrdering()) {
+                //cout << "TEST";
                 ++iter;
                 continue;
             } else {
+                removedVariablesByUR++;
                 iter = inC->getClauseVariables().erase(iter);
             }
         } else {
