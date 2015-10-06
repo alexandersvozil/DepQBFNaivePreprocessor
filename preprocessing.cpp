@@ -95,7 +95,7 @@ void preprocessing::heuristic_nrResolvents(formula *in, int nrResolv, int maxCSi
                         }
                     }
                     if(!curvarcheck1){
-                        cout << "we deleted curvar";
+                    //    cout << "we deleted curvar";
                     continue;
                     }
 
@@ -185,11 +185,10 @@ void preprocessing::universalR(clause *inC, formula *f) {
     //for each variable in the incoming clause
     for (auto iter = inC->getClauseVariables().begin(); iter != inC->getClauseVariables().end();) {
         //get the quantifier groupe of var
-      //  cout << *iter << endl ;
+       // cout << *iter << endl ;
         quantgroup *corQ = qmap.find(abs(*iter))->second;
         /*if it is of type "a" we can eventually delete it from the clause if we dont find any existential variable
         depending on it */
-//        cout << var << endl;
         if (corQ->getType() == "a") {
             //get Ordering produces the highest existential variable of the clause
            // cout << inC->getHExO() << " " << corQ->getOrdering() << endl;

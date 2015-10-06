@@ -23,7 +23,7 @@ using namespace std;
 
 
 clock_t beginC;
-
+string outputString;
 
 int main(int argc, char *argv[]) {
     try {
@@ -34,13 +34,18 @@ int main(int argc, char *argv[]) {
         bool sMode = false;
         bool dVariablesMode = false;
         bool LDRMode = false;
+        bool outputMode = false;
+        bool statistics = false;
 
         if (argc < 2 || argc > 6) {
             cout << usage();
             return -1;
         }
-        while ((opt = getopt(argc, argv, "lvc:pP:s")) != -1) {
+        while ((opt = getopt(argc, argv, "lvc:pP:sot")) != -1) {
             switch (opt) {
+                case 't':
+                    statistics = true;
+                    break;
                 case 's':
                     sMode = true;
                     break;
@@ -61,7 +66,9 @@ int main(int argc, char *argv[]) {
                 case 'v':
                     dVariablesMode = true;
                     break;
-
+                case 'o':
+                    outputMode = true;
+                    break;
                 default:
                     cout << usage();
                     return -1;
@@ -131,14 +138,18 @@ int main(int argc, char *argv[]) {
 
         cout << "RESULT: " << "elapsed: " << elapsed_secs << " result: " << result << " mode: " << modestring << "." <<
                               endl;
-        if(LDRMode || pMode) {
-            if(sMode) {
-                cout << "Clauses deleted by subsumption: " << subsD << endl
-                << "Resolved clauses that are subsumed by the original clauses: " << rescB<< endl;
+        if(statistics) {
+            if (LDRMode || pMode) {
+                if (sMode) {
+                    cout << "Clauses deleted by subsumption: " << subsD << endl
+                    << "Resolved clauses that are subsumed by the original clauses: " << rescB << endl;
+                }
+                cout << "Clauses added by resolution: " << resC << endl
+                << "Variables deleted by universal reduction: " << varD << endl;
             }
-            cout << "Clauses added by resolution: " << resC << endl
-            << "Variables deleted by universal reduction: " << varD << endl;
         }
+        if(outputMode)
+        cout << outputString;
 
 
         freeFormula(&f_1);
@@ -170,9 +181,9 @@ void freeFormula(formula* formula1) {
 
 
 std::string usage() {
-    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] [-s] [-l] path_to_qdimacs_file\n -p,-l means that 5% "
+    return "USAGE: qbf_cpp [-c maximum clause size] [-p]  [-P maximum number of added clauses]] [-s] [-l] [-o output in QDIMACS] [-t statistics] path_to_qdimacs_file\n -p,-l means that 5% "
             "are the maximum number of added clauses -l uses LDR and p QU-resolution, -P lets you define the number in total, -c lets you restrict the maximum "
-            "clause size of the resolved and added clauses \n";
+            "clause size of the resolved and added clauses, -o outputs the preprocessed formula in QDIMACS format. \n";
 }
 
 
@@ -184,7 +195,7 @@ bool withoutpp(formula* f){
 
 
 //use the nrResolvents heuristics
-bool withpp(formula *f, int nrResolvents, int maxNrRes, bool b) {
+/*bool withpp(formula *f, int nrResolvents, int maxNrRes, bool b) {
     //TODO: implement the nrResolvents as input parameter
     preprocessing pp;
     beginC = clock();
@@ -193,12 +204,13 @@ bool withpp(formula *f, int nrResolvents, int maxNrRes, bool b) {
     pp.heuristic_nrResolvents(f, nrResolvents, maxNrRes, b);
     return feedSolver(f);
 
-}
+}*/
 
 //feed the formula object to depQBF
 bool feedSolver(formula *f){
     QDPLL *depqbf = qdpll_create ();
-
+    std::stringstream ss;
+    ss << "p cnf " << f->getNrVar()  << " " << f->getClauses().size();
     /* Use the linear ordering of the quantifier prefix. */
     //const char  *
     string  conf_1 = "--dep-man=simple";
@@ -209,15 +221,19 @@ bool feedSolver(formula *f){
     int nestingLevel = 1;
     for(quantgroup* q : f->getQuantgroups()){
         if(q->getType()=="a"){
+            ss << endl << "a ";
             qdpll_new_scope_at_nesting(depqbf, QDPLL_QTYPE_FORALL,nestingLevel);
             for(int curV : q->getVariables()){
+                ss << curV << " ";
                 qdpll_add(depqbf,curV);
             }
             qdpll_add(depqbf,0);
         }
         else if(q->getType()=="e"){
+            ss << endl << "e ";
             qdpll_new_scope_at_nesting(depqbf, QDPLL_QTYPE_EXISTS,nestingLevel);
             for(int curV : q->getVariables()){
+                ss << curV << " ";
                 qdpll_add(depqbf,curV);
             }
             qdpll_add(depqbf,0);
@@ -233,19 +249,22 @@ bool feedSolver(formula *f){
 //            cout << "dedurced" << cl << endl;
             continue;
         }
+        ss << endl;
         for(int curVar : cl->getClauseVariables()){
             qdpll_add(depqbf,curVar);
+            ss << curVar << " ";
         }
         qdpll_add(depqbf, 0);
     }
     int result = qdpll_sat(depqbf);
     qdpll_delete(depqbf);
-    //std::cout << result << std::endl;
+    outputString = ss.str();
     if(result == 10){
         return true;
     }else {
         return false;
     }
+
 }
 
 
