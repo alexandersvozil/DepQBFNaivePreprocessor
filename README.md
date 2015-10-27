@@ -16,5 +16,7 @@ Credits:
 2. Enrico Giunchiglia, Paolo Marin and Massimo Narizzano: Preprocessing Techniques
 for QBFs (http://ceur-ws.org/Vol-451/paper09giunchiglia.pdf) - on page 8 they describe a very intuitive and effective way to remove subsumption in clauses. 
 
+IMPORTANT NOTE: 
+I used gcc 4.9.2 to compile the code. Version 4.8.4 of gcc seems to have problems to produce the correct program resulting in several segmentation faults when using the program with Long Distance Resolution on the benchmarks (argument 'l')
 
 
