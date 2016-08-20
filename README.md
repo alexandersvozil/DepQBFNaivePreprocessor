@@ -1,5 +1,5 @@
 # DepQBFNaivePreprocessor
-A (very!) naive implementation of a QBF preprocessor for depqbf.
+A naive implementation of a QBF preprocessor for depqbf.
 Compilation instructions:
 
 1. Clone the repository.
